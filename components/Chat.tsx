@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import ChatInput from '@/components/ChatInput';
-import { PROMPT_SUGGESTIONS } from '@/lib/constants/PromptMessages';
 import '@/global.css';
+import { PROMPT_SUGGESTIONS } from '@/lib/constants/PromptMessages';
+import React, { useRef, useState } from 'react';
+import { Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 
@@ -42,7 +42,7 @@ export default function Chat() {
         ],
       };
 
-      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
       
       const response = await fetch(url, {
         method: 'POST',
@@ -71,7 +71,7 @@ export default function Chat() {
     } catch (error: any) {
       const errorMessage: Message = {
         role: 'bot',
-        text: '❌ Error: ' + (error.message || 'Verifica tu API key y conexión'),
+        text: '❌ Error: ' + ("No se pudo completar esta accion"),
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
