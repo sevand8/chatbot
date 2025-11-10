@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import '@/global.css';
 
 interface ChatInputProps {
@@ -39,11 +39,10 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
           <TouchableOpacity
             onPress={handleSend}
             disabled={disabled || !text.trim()}
-            className={`ml-2 w-12 h-12 rounded-full items-center justify-center ${
-              disabled || !text.trim()
-                ? 'bg-gray-300'
-                : 'bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg'
-            }`}
+            style={[
+              styles.sendButton,
+              (disabled || !text.trim()) ? styles.sendButtonDisabled : styles.sendButtonActive
+            ]}
           >
             <Text className="text-white text-xl font-bold">➤</Text>
           </TouchableOpacity>
@@ -52,3 +51,25 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  sendButton: {
+    marginLeft: 8,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#D1D5DB',
+  },
+  sendButtonActive: {
+    backgroundColor: '#8B5CF6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+});

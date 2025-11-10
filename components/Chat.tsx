@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import ChatInput from '@/components/ChatInput';
 import { PROMPT_SUGGESTIONS } from '@/lib/constants/PromptMessages';
 import '@/global.css';
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 
-// Debug: verificar que la API Key se está cargando
 console.log('API Key cargada:', API_KEY ? 'Sí ✓' : 'No ✗');
 
 interface Message {
@@ -43,7 +42,7 @@ export default function Chat() {
         ],
       };
 
-      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
       
       const response = await fetch(url, {
         method: 'POST',
@@ -101,7 +100,6 @@ export default function Chat() {
               Soy Gemini AI. Pregúntame lo que quieras
             </Text>
             
-            {/* Sugerencias */}
             <View className="w-full px-2">
               <Text className="text-gray-700 font-semibold mb-3 text-center">
                 Prueba estas preguntas:
@@ -110,7 +108,8 @@ export default function Chat() {
                 <TouchableOpacity
                   key={index}
                   onPress={() => handleSuggestionPress(suggestion)}
-                  className="bg-gradient-to-r from-purple-100 to-blue-100 p-4 rounded-2xl mb-3 border border-purple-200"
+                  style={styles.suggestionCard}
+                  className="p-4 rounded-2xl mb-3"
                 >
                   <Text className="text-purple-700 font-medium">
                     💡 {suggestion}
@@ -126,9 +125,10 @@ export default function Chat() {
               className={`mb-4 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <View
+                style={msg.role === 'user' ? styles.userBubble : undefined}
                 className={`max-w-[80%] p-4 rounded-3xl ${
                   msg.role === 'user'
-                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 rounded-br-sm'
+                    ? 'rounded-br-sm'
                     : 'bg-gray-100 rounded-bl-sm shadow-md'
                 }`}
               >
@@ -157,11 +157,7 @@ export default function Chat() {
         {loading && (
           <View className="items-start mb-4">
             <View className="bg-gray-100 p-4 rounded-3xl rounded-bl-sm shadow-md">
-              <View className="flex-row space-x-2">
-                <View className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
-                <View className="w-2 h-2 bg-blue-400 rounded-full animate-bounce delay-100" />
-                <View className="w-2 h-2 bg-purple-400 rounded-full animate-bounce delay-200" />
-              </View>
+              <LoadingDots />
             </View>
           </View>
         )}
@@ -171,3 +167,60 @@ export default function Chat() {
     </View>
   );
 }
+
+// Componente para los puntos animados
+function LoadingDots() {
+  const dot1 = useRef(new Animated.Value(0)).current;
+  const dot2 = useRef(new Animated.Value(0)).current;
+  const dot3 = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    const animate = (dot: Animated.Value, delay: number) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.delay(delay),
+          Animated.timing(dot, {
+            toValue: -8,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dot, {
+            toValue: 0,
+            duration: 400,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    };
+
+    animate(dot1, 0);
+    animate(dot2, 150);
+    animate(dot3, 300);
+  }, []);
+
+  return (
+    <View className="flex-row space-x-2">
+      <Animated.View style={[styles.dot, { transform: [{ translateY: dot1 }] }]} />
+      <Animated.View style={[styles.dot, { transform: [{ translateY: dot2 }] }]} />
+      <Animated.View style={[styles.dot, { transform: [{ translateY: dot3 }] }]} />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  suggestionCard: {
+    backgroundColor: '#F3E8FF',
+    borderWidth: 1,
+    borderColor: '#E9D5FF',
+  },
+  userBubble: {
+    backgroundColor: '#8B5CF6',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    backgroundColor: '#A78BFA',
+    borderRadius: 4,
+    marginHorizontal: 2,
+  },
+});
